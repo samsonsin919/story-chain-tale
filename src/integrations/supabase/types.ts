@@ -32,25 +32,63 @@ export type Database = {
         }
         Relationships: []
       }
-      stories: {
+      segment_likes: {
         Row: {
           created_at: string
-          created_by: string
           id: string
+          segment_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          segment_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          segment_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "segment_likes_segment_id_fkey"
+            columns: ["segment_id"]
+            isOneToOne: false
+            referencedRelation: "story_segments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stories: {
+        Row: {
+          cover_emoji: string | null
+          created_at: string
+          created_by: string
+          genre: string | null
+          id: string
+          is_featured: boolean
           opening: string
           title: string
         }
         Insert: {
+          cover_emoji?: string | null
           created_at?: string
           created_by: string
+          genre?: string | null
           id?: string
+          is_featured?: boolean
           opening: string
           title: string
         }
         Update: {
+          cover_emoji?: string | null
           created_at?: string
           created_by?: string
+          genre?: string | null
           id?: string
+          is_featured?: boolean
           opening?: string
           title?: string
         }
