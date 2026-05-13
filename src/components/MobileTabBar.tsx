@@ -1,0 +1,45 @@
+import { Link, useLocation } from "@tanstack/react-router";
+import { Compass, Flame, Plus, User } from "lucide-react";
+
+const items = [
+  { to: "/", label: "探索", icon: Compass, match: (p: string) => p === "/" },
+  { to: "/?sort=hot", label: "熱門", icon: Flame, match: (p: string, s: string) => p === "/" && s.includes("hot") },
+  { to: "/new", label: "開故事", icon: Plus, match: (p: string) => p.startsWith("/new"), accent: true },
+  { to: "/auth", label: "我", icon: User, match: (p: string) => p.startsWith("/auth") },
+] as const;
+
+export function MobileTabBar() {
+  const loc = useLocation();
+  const path = loc.pathname;
+  const search = typeof loc.search === "string" ? loc.search : JSON.stringify(loc.search ?? "");
+
+  return (
+    <nav className="sm:hidden fixed bottom-0 inset-x-0 z-40 glass border-t border-white/5"
+         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+      <ul className="grid grid-cols-4">
+        {items.map(({ to, label, icon: Icon, match, accent }) => {
+          const active = match(path, search);
+          return (
+            <li key={label} className="flex">
+              <Link
+                to={to}
+                className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[11px] transition ${
+                  active ? "text-[color:var(--glow)]" : "text-muted-foreground"
+                }`}
+              >
+                <span className={`flex items-center justify-center w-10 h-10 rounded-full transition ${
+                  accent
+                    ? "bg-gradient-to-br from-[color:var(--glow)] to-[color:var(--violet)] text-[oklch(0.12_0.02_280)] shadow-[0_8px_24px_-6px_color-mix(in_oklab,var(--glow)_70%,transparent)]"
+                    : active ? "bg-white/5" : ""
+                }`}>
+                  <Icon className="w-5 h-5" strokeWidth={accent ? 2.5 : 2} />
+                </span>
+                <span>{label}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+  );
+}
