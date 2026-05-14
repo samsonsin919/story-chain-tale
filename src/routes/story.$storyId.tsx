@@ -5,9 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
-import { ChevronLeft, Users } from "lucide-react";
+import { ChevronLeft, Users, GitBranch } from "lucide-react";
 import { SegmentCard } from "@/components/SegmentCard";
 import { ComposeSegment } from "@/components/ComposeSegment";
+import { StoryRecap } from "@/components/StoryRecap";
 import { getGenre, genrePillClass, MIN_SEG, MAX_SEG } from "@/lib/genres";
 
 export const Route = createFileRoute("/story/$storyId")({ component: StoryPage });
@@ -20,6 +21,9 @@ interface Story {
   created_by: string;
   genre: string | null;
   cover_emoji: string | null;
+  parent_story_id: string | null;
+  branch_from_segment_id: string | null;
+  branch_label: string | null;
 }
 interface Segment {
   id: string;
@@ -48,11 +52,32 @@ function StoryPage() {
       const segIds = segments.map((s) => s.id);
 
       const authorIds = Array.from(new Set([story.created_by, ...segments.map((s) => s.author_id)]));
-      const [{ data: profiles }, { data: likes }] = await Promise.all([
+      const [
+        { data: profiles },
+        { data: likes },
+        { data: branches },
+        { data: parent },
+        { data: recap },
+      ] = await Promise.all([
         supabase.from("profiles").select("id,display_name").in("id", authorIds),
         segIds.length
           ? supabase.from("segment_likes").select("segment_id, user_id").in("segment_id", segIds)
           : Promise.resolve({ data: [] as { segment_id: string; user_id: string }[] }),
+        supabase
+          .from("stories")
+          .select("id, title, cover_emoji, branch_label, branch_from_segment_id")
+          .eq("parent_story_id", storyId)
+          .order("created_at", { ascending: false }),
+        story.parent_story_id
+          ? supabase.from("stories").select("id, title").eq("id", story.parent_story_id).maybeSingle()
+          : Promise.resolve({ data: null }),
+        supabase
+          .from("story_recaps")
+          .select("content, up_to_position")
+          .eq("story_id", storyId)
+          .order("up_to_position", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
       ]);
 
       const nameMap: Record<string, string> = {};
@@ -71,11 +96,14 @@ function StoryPage() {
         names: nameMap,
         likeCount,
         likedByMe,
+        branches: branches ?? [],
+        parent,
+        recap,
       };
     },
   });
 
-  // Realtime: segments + likes
+  // Realtime: segments + likes + recaps + branches
   useEffect(() => {
     const ch = supabase
       .channel(`story-${storyId}`)
@@ -84,6 +112,12 @@ function StoryPage() {
         () => qc.invalidateQueries({ queryKey: ["story", storyId] }))
       .on("postgres_changes",
         { event: "*", schema: "public", table: "segment_likes" },
+        () => qc.invalidateQueries({ queryKey: ["story", storyId] }))
+      .on("postgres_changes",
+        { event: "INSERT", schema: "public", table: "story_recaps", filter: `story_id=eq.${storyId}` },
+        () => qc.invalidateQueries({ queryKey: ["story", storyId] }))
+      .on("postgres_changes",
+        { event: "INSERT", schema: "public", table: "stories", filter: `parent_story_id=eq.${storyId}` },
         () => qc.invalidateQueries({ queryKey: ["story", storyId] }))
       .subscribe();
     return () => { supabase.removeChannel(ch); };
@@ -150,18 +184,43 @@ function StoryPage() {
           <div className="flex items-center gap-2 mb-3 flex-wrap">
             {genre && <span className={genrePillClass(genre.tone)}>{genre.emoji} {genre.label}</span>}
             <span className="pill"><Users className="w-3 h-3" /> {contributors} 人</span>
+            {data.story.parent_story_id && (
+              <span className="pill pill-violet"><GitBranch className="w-3 h-3" /> 分支宇宙</span>
+            )}
             <span className="text-xs text-muted-foreground">· {data.segments.length + 1} 段 · {totalLikes} ❤</span>
           </div>
+
+          {data.parent && (
+            <Link
+              to="/story/$storyId"
+              params={{ storyId: data.parent.id }}
+              className="inline-flex items-center gap-1 text-xs text-[color:var(--violet)] mb-2 hover:underline"
+            >
+              <ChevronLeft className="w-3 h-3" /> 母宇宙：《{data.parent.title}》
+            </Link>
+          )}
+
           {(data.story.cover_emoji || genre?.emoji) && (
             <div className="text-5xl mb-3">{data.story.cover_emoji ?? genre?.emoji}</div>
           )}
           <h1 className="font-display text-4xl sm:text-6xl leading-[1.05] text-gradient text-glow">
             《{data.story.title}》
           </h1>
+          {data.story.branch_label && (
+            <p className="mt-2 text-sm text-[color:var(--violet)] italic">↳ {data.story.branch_label}</p>
+          )}
           <p className="mt-3 text-sm text-muted-foreground">
             開場：<span className="text-foreground/80">{data.names[data.story.created_by] ?? "匿名旅人"}</span>
           </p>
         </header>
+
+        {/* AI Recap (auto-generated every 5 segments) */}
+        <StoryRecap
+          storyId={storyId}
+          segCount={data.segments.length}
+          recap={data.recap}
+          onGenerated={() => qc.invalidateQueries({ queryKey: ["story", storyId] })}
+        />
 
         {/* Opening */}
         <div className="cinema-card p-5 sm:p-7 mb-4 animate-drift-in">
@@ -183,6 +242,7 @@ function StoryPage() {
             <SegmentCard
               key={s.id}
               id={s.id}
+              storyId={storyId}
               position={s.position}
               content={s.content}
               authorName={data.names[s.author_id] ?? "匿名旅人"}
@@ -192,6 +252,40 @@ function StoryPage() {
             />
           ))}
         </div>
+
+        {/* Branches */}
+        {data.branches.length > 0 && (
+          <section className="mt-10">
+            <div className="flex items-center gap-2 mb-3">
+              <GitBranch className="w-4 h-4 text-[color:var(--violet)]" />
+              <h2 className="font-cinematic text-lg tracking-[0.18em] text-gradient">平行宇宙</h2>
+              <span className="text-xs text-muted-foreground">{data.branches.length} 條</span>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {data.branches.map((b) => (
+                <Link
+                  key={b.id}
+                  to="/story/$storyId"
+                  params={{ storyId: b.id }}
+                  className="cinema-card p-4 group hover:border-[color:var(--violet)]/50"
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl">{b.cover_emoji ?? "🌌"}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-display text-lg text-gradient truncate">《{b.title}》</div>
+                      {b.branch_label && (
+                        <p className="text-xs text-[color:var(--violet)] italic line-clamp-2 mt-1">
+                          ↳ {b.branch_label}
+                        </p>
+                      )}
+                    </div>
+                    <span className="text-[color:var(--violet)] group-hover:translate-x-0.5 transition-transform">→</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Compose */}
         <section className="mt-10 mb-24 sm:mb-10">
