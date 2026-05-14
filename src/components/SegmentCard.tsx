@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Heart, GitBranch } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
@@ -13,10 +14,11 @@ interface Props {
   createdAt: string;
   likes: number;
   likedByMe: boolean;
+  storyId: string;
   onChanged?: () => void;
 }
 
-export function SegmentCard({ id, position, content, authorName, createdAt, likes, likedByMe, onChanged }: Props) {
+export function SegmentCard({ id, position, content, authorName, createdAt, likes, likedByMe, storyId, onChanged }: Props) {
   const { user } = useAuth();
   const [busy, setBusy] = useState(false);
   const [optimisticLiked, setOptimisticLiked] = useState(likedByMe);
@@ -72,14 +74,15 @@ export function SegmentCard({ id, position, content, authorName, createdAt, like
           <Heart className={`w-4 h-4 ${optimisticLiked ? "fill-current" : ""}`} />
           {optimisticCount}
         </button>
-        <button
-          className="inline-flex items-center gap-1.5 hover:text-[color:var(--violet)] transition opacity-60 cursor-not-allowed"
-          title="分支宇宙（即將推出）"
-          disabled
+        <Link
+          to="/new"
+          search={{ from: id, parent: storyId }}
+          className="inline-flex items-center gap-1.5 hover:text-[color:var(--violet)] transition"
+          title="從這一段開出平行宇宙"
         >
           <GitBranch className="w-4 h-4" />
           開分支
-        </button>
+        </Link>
       </div>
     </article>
   );
