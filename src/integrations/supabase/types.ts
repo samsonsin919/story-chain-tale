@@ -63,6 +63,8 @@ export type Database = {
       }
       stories: {
         Row: {
+          branch_from_segment_id: string | null
+          branch_label: string | null
           cover_emoji: string | null
           created_at: string
           created_by: string
@@ -70,9 +72,12 @@ export type Database = {
           id: string
           is_featured: boolean
           opening: string
+          parent_story_id: string | null
           title: string
         }
         Insert: {
+          branch_from_segment_id?: string | null
+          branch_label?: string | null
           cover_emoji?: string | null
           created_at?: string
           created_by: string
@@ -80,9 +85,12 @@ export type Database = {
           id?: string
           is_featured?: boolean
           opening: string
+          parent_story_id?: string | null
           title: string
         }
         Update: {
+          branch_from_segment_id?: string | null
+          branch_label?: string | null
           cover_emoji?: string | null
           created_at?: string
           created_by?: string
@@ -90,9 +98,57 @@ export type Database = {
           id?: string
           is_featured?: boolean
           opening?: string
+          parent_story_id?: string | null
           title?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "stories_branch_from_segment_id_fkey"
+            columns: ["branch_from_segment_id"]
+            isOneToOne: false
+            referencedRelation: "story_segments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stories_parent_story_id_fkey"
+            columns: ["parent_story_id"]
+            isOneToOne: false
+            referencedRelation: "stories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      story_recaps: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          story_id: string
+          up_to_position: number
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          story_id: string
+          up_to_position: number
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          story_id?: string
+          up_to_position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_recaps_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "stories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       story_segments: {
         Row: {
