@@ -299,6 +299,19 @@ function StoryPage() {
               onSubmit={handleSubmit}
               disabled={isMyTurnBlocked}
               disabledReason="你剛剛接過一段，等等別人 ☕"
+              storyTitle={data.story.title}
+              context={[
+                {
+                  position: 0,
+                  authorName: data.names[data.story.created_by] ?? "匿名旅人",
+                  content: data.story.opening,
+                },
+                ...data.segments.slice(-3).map((s) => ({
+                  position: s.position,
+                  authorName: data.names[s.author_id] ?? "匿名旅人",
+                  content: s.content,
+                })),
+              ]}
             />
           )}
         </section>
