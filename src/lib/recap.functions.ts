@@ -90,5 +90,15 @@ export const ensureRecap = createServerFn({ method: "POST" })
       .single();
     if (e3) throw new Error(e3.message);
 
+    // Fire-and-forget: extract proper nouns into the story dictionary.
+    void (async () => {
+      try {
+        const mod = await import("./dictionary.functions");
+        await mod.extractTerms({ data: { storyId: data.storyId, upToPosition: data.upToPosition } });
+      } catch (err) {
+        console.error("extractTerms failed", err);
+      }
+    })();
+
     return { recap: inserted, generated: true };
   });
