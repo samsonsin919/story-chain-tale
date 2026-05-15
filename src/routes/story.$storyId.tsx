@@ -4,12 +4,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { useAuth } from "@/lib/auth";
-import { toast } from "sonner";
 import { ChevronLeft, Users, GitBranch } from "lucide-react";
 import { SegmentCard } from "@/components/SegmentCard";
-
 import { StoryRecap } from "@/components/StoryRecap";
-import { getGenre, genrePillClass, MIN_SEG, MAX_SEG } from "@/lib/genres";
+import { getGenre, genrePillClass } from "@/lib/genres";
 
 export const Route = createFileRoute("/story/$storyId")({ component: StoryPage });
 
