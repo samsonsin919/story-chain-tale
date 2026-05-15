@@ -118,6 +118,33 @@ export type Database = {
           },
         ]
       }
+      story_dictionary: {
+        Row: {
+          added_by: string | null
+          created_at: string
+          id: string
+          kind: string
+          story_id: string
+          term: string
+        }
+        Insert: {
+          added_by?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          story_id: string
+          term: string
+        }
+        Update: {
+          added_by?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          story_id?: string
+          term?: string
+        }
+        Relationships: []
+      }
       story_recaps: {
         Row: {
           content: string
