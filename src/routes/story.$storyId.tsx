@@ -287,32 +287,28 @@ function StoryPage() {
           </section>
         )}
 
-        {/* Compose */}
+        {/* Compose entry — link to immersive writing room */}
         <section className="mt-10 mb-24 sm:mb-10">
           {!user ? (
             <div className="cinema-card p-6 text-center">
               <p className="text-muted-foreground mb-3">登入後就可以加入這條時間線</p>
               <Link to="/auth" className="btn-neon">登入 / 註冊</Link>
             </div>
+          ) : isMyTurnBlocked ? (
+            <div className="glass rounded-2xl p-5 text-center text-sm text-muted-foreground">
+              你剛剛接過一段，等等別人 ☕
+            </div>
           ) : (
-            <ComposeSegment
-              onSubmit={handleSubmit}
-              disabled={isMyTurnBlocked}
-              disabledReason="你剛剛接過一段，等等別人 ☕"
-              storyTitle={data.story.title}
-              context={[
-                {
-                  position: 0,
-                  authorName: data.names[data.story.created_by] ?? "匿名旅人",
-                  content: data.story.opening,
-                },
-                ...data.segments.slice(-3).map((s) => ({
-                  position: s.position,
-                  authorName: data.names[s.author_id] ?? "匿名旅人",
-                  content: s.content,
-                })),
-              ]}
-            />
+            <div className="text-center">
+              <Link
+                to="/story/$storyId/write"
+                params={{ storyId }}
+                className="btn-neon animate-glow-pulse"
+              >
+                ✦ 進入故事接落去
+              </Link>
+              <p className="text-xs text-muted-foreground mt-3">沉浸式寫作 · 一邊閱讀一邊創作</p>
+            </div>
           )}
         </section>
       </article>
