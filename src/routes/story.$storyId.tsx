@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { ChevronLeft, Users, GitBranch } from "lucide-react";
 import { SegmentCard } from "@/components/SegmentCard";
-import { ComposeSegment } from "@/components/ComposeSegment";
+
 import { StoryRecap } from "@/components/StoryRecap";
 import { getGenre, genrePillClass, MIN_SEG, MAX_SEG } from "@/lib/genres";
 
@@ -147,29 +147,6 @@ function StoryPage() {
   const lastAuthor = data.segments[data.segments.length - 1]?.author_id ?? data.story.created_by;
   const isMyTurnBlocked = user?.id === lastAuthor;
   const totalLikes = Object.values(data.likeCount).reduce((a, b) => a + b, 0);
-
-  async function handleSubmit(content: string) {
-    if (!user || !data) return;
-    if (content.length < MIN_SEG || content.length > MAX_SEG) {
-      toast.error(`字數需在 ${MIN_SEG}–${MAX_SEG} 之間`);
-      return;
-    }
-    const last = data.segments[data.segments.length - 1];
-    const nextPos = (last?.position ?? 0) + 1;
-    const { error } = await supabase.from("story_segments").insert({
-      story_id: storyId,
-      author_id: user.id,
-      content,
-      position: nextPos,
-    });
-    if (error) {
-      toast.error(error.message);
-      throw error;
-    }
-    toast.success("接上了一段 ✦");
-    qc.invalidateQueries({ queryKey: ["story", storyId] });
-    qc.invalidateQueries({ queryKey: ["stories"] });
-  }
 
   return (
     <div className="min-h-screen">
