@@ -101,9 +101,6 @@ export const ensureRecap = createServerFn({ method: "POST" })
         console.error("extractTerms failed", err);
       }
     })();
-        console.error("extractTerms failed", err);
-      }
-    })();
 
     return { recap: inserted, generated: true };
   });
