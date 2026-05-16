@@ -14,6 +14,7 @@ const ExtractInput = z.object({
  * piggy-back on recap generation, every 5 segments.
  */
 export const extractTerms = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input) => ExtractInput.parse(input))
   .handler(async ({ data }) => {
     const [{ data: story }, { data: segs }] = await Promise.all([
