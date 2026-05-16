@@ -21,6 +21,9 @@ export function MobileTabBar() {
   const path = loc.pathname;
   const search = typeof loc.search === "string" ? loc.search : JSON.stringify(loc.search ?? "");
 
+  // Hide on immersive routes (writing room, focused composer)
+  if (path.endsWith("/write") || path.startsWith("/new")) return null;
+
   return (
     <nav className="sm:hidden fixed bottom-0 inset-x-0 z-40 glass border-t border-white/5"
          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
