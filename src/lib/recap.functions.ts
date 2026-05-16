@@ -95,9 +95,12 @@ export const ensureRecap = createServerFn({ method: "POST" })
     // Fire-and-forget: extract proper nouns into the story dictionary.
     void (async () => {
       try {
-        const mod = await import("./dictionary.functions");
-        await mod.extractTerms({ data: { storyId: data.storyId, upToPosition: data.upToPosition } });
+        const mod = await import("./dictionary.server");
+        await mod.extractTermsImpl(data.storyId, data.upToPosition);
       } catch (err) {
+        console.error("extractTerms failed", err);
+      }
+    })();
         console.error("extractTerms failed", err);
       }
     })();
