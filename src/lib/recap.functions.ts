@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const Input = z.object({
   storyId: z.string().uuid(),
@@ -9,10 +10,11 @@ const Input = z.object({
 
 /**
  * Ensure an AI-generated recap exists for `storyId` covering up to `upToPosition`.
- * No-op + returns existing if already present. Designed to be called from the
- * client whenever a story crosses every 5 segments.
+ * No-op + returns existing if already present. Auth required to prevent
+ * anonymous abuse of the AI gateway quota.
  */
 export const ensureRecap = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input) => Input.parse(input))
   .handler(async ({ data }) => {
     // Existing?
