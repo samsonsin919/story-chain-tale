@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const Input = z.object({
   storyId: z.string().uuid(),
@@ -10,11 +9,10 @@ const Input = z.object({
 
 /**
  * Ensure an AI-generated recap exists for `storyId` covering up to `upToPosition`.
- * No-op + returns existing if already present. Auth required to prevent
- * anonymous abuse of the AI gateway quota.
+ * No-op + returns existing if already present. Designed to be called from the
+ * client whenever a story crosses every 5 segments.
  */
 export const ensureRecap = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((input) => Input.parse(input))
   .handler(async ({ data }) => {
     // Existing?
@@ -95,8 +93,8 @@ export const ensureRecap = createServerFn({ method: "POST" })
     // Fire-and-forget: extract proper nouns into the story dictionary.
     void (async () => {
       try {
-        const mod = await import("./dictionary.server");
-        await mod.extractTermsImpl(data.storyId, data.upToPosition);
+        const mod = await import("./dictionary.functions");
+        await mod.extractTerms({ data: { storyId: data.storyId, upToPosition: data.upToPosition } });
       } catch (err) {
         console.error("extractTerms failed", err);
       }

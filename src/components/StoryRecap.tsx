@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
 import { ensureRecap } from "@/lib/recap.functions";
-import { useAuth } from "@/lib/auth";
 import { Sparkles } from "lucide-react";
 
 interface Props {
@@ -20,7 +19,6 @@ interface Props {
  */
 export function StoryRecap({ storyId, segCount, recap, onGenerated }: Props) {
   const ensure = useServerFn(ensureRecap);
-  const { user } = useAuth();
   const triedRef = useRef<Set<number>>(new Set());
 
   // Latest milestone reached (every 5 segs).
@@ -34,13 +32,12 @@ export function StoryRecap({ storyId, segCount, recap, onGenerated }: Props) {
   });
 
   useEffect(() => {
-    if (!user) return;
     if (milestone < 5) return;
     if (recap?.up_to_position === milestone) return;
     if (triedRef.current.has(milestone)) return;
     triedRef.current.add(milestone);
     m.mutate(milestone);
-  }, [milestone, recap?.up_to_position, user]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [milestone, recap?.up_to_position]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!recap && !m.isPending) return null;
 
