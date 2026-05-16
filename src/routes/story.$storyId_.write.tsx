@@ -12,7 +12,7 @@ import { WorldCard } from "@/components/WorldCard";
 import { SpellcheckEditor } from "@/components/SpellcheckEditor";
 import { addTerm } from "@/lib/dictionary.functions";
 
-export const Route = createFileRoute("/story/$storyId/write")({ component: WritePage });
+export const Route = createFileRoute("/story/$storyId_/write")({ component: WritePage });
 
 interface Story {
   id: string; title: string; opening: string; created_by: string;
