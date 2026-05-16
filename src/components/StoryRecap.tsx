@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
 import { ensureRecap } from "@/lib/recap.functions";
+import { useAuth } from "@/lib/auth";
 import { Sparkles } from "lucide-react";
 
 interface Props {
@@ -19,6 +20,7 @@ interface Props {
  */
 export function StoryRecap({ storyId, segCount, recap, onGenerated }: Props) {
   const ensure = useServerFn(ensureRecap);
+  const { user } = useAuth();
   const triedRef = useRef<Set<number>>(new Set());
 
   // Latest milestone reached (every 5 segs).
