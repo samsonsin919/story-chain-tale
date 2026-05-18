@@ -13,7 +13,6 @@ import { Route as NewRouteImport } from './routes/new'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StoryStoryIdRouteImport } from './routes/story.$storyId'
-import { Route as StoryStoryIdWriteRouteImport } from './routes/story.$storyId_.write'
 
 const NewRoute = NewRouteImport.update({
   id: '/new',
@@ -35,25 +34,18 @@ const StoryStoryIdRoute = StoryStoryIdRouteImport.update({
   path: '/story/$storyId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StoryStoryIdWriteRoute = StoryStoryIdWriteRouteImport.update({
-  id: '/story/$storyId_/write',
-  path: '/story/$storyId/write',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/new': typeof NewRoute
   '/story/$storyId': typeof StoryStoryIdRoute
-  '/story/$storyId/write': typeof StoryStoryIdWriteRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/new': typeof NewRoute
   '/story/$storyId': typeof StoryStoryIdRoute
-  '/story/$storyId/write': typeof StoryStoryIdWriteRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -61,25 +53,13 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/new': typeof NewRoute
   '/story/$storyId': typeof StoryStoryIdRoute
-  '/story/$storyId_/write': typeof StoryStoryIdWriteRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/auth'
-    | '/new'
-    | '/story/$storyId'
-    | '/story/$storyId/write'
+  fullPaths: '/' | '/auth' | '/new' | '/story/$storyId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/new' | '/story/$storyId' | '/story/$storyId/write'
-  id:
-    | '__root__'
-    | '/'
-    | '/auth'
-    | '/new'
-    | '/story/$storyId'
-    | '/story/$storyId_/write'
+  to: '/' | '/auth' | '/new' | '/story/$storyId'
+  id: '__root__' | '/' | '/auth' | '/new' | '/story/$storyId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -87,7 +67,6 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   NewRoute: typeof NewRoute
   StoryStoryIdRoute: typeof StoryStoryIdRoute
-  StoryStoryIdWriteRoute: typeof StoryStoryIdWriteRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -120,13 +99,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StoryStoryIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/story/$storyId_/write': {
-      id: '/story/$storyId_/write'
-      path: '/story/$storyId/write'
-      fullPath: '/story/$storyId/write'
-      preLoaderRoute: typeof StoryStoryIdWriteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -135,8 +107,17 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   NewRoute: NewRoute,
   StoryStoryIdRoute: StoryStoryIdRoute,
-  StoryStoryIdWriteRoute: StoryStoryIdWriteRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
