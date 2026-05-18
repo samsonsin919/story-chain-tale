@@ -63,142 +63,65 @@ export type Database = {
       }
       stories: {
         Row: {
-          branch_from_segment_id: string | null
-          branch_label: string | null
           cover_emoji: string | null
           created_at: string
           created_by: string
           genre: string | null
           id: string
-          is_featured: boolean
+          last_activity_at: string
+          max_segments: number
           opening: string
-          parent_story_id: string | null
           title: string
         }
         Insert: {
-          branch_from_segment_id?: string | null
-          branch_label?: string | null
           cover_emoji?: string | null
           created_at?: string
           created_by: string
           genre?: string | null
           id?: string
-          is_featured?: boolean
+          last_activity_at?: string
+          max_segments?: number
           opening: string
-          parent_story_id?: string | null
           title: string
         }
         Update: {
-          branch_from_segment_id?: string | null
-          branch_label?: string | null
           cover_emoji?: string | null
           created_at?: string
           created_by?: string
           genre?: string | null
           id?: string
-          is_featured?: boolean
+          last_activity_at?: string
+          max_segments?: number
           opening?: string
-          parent_story_id?: string | null
           title?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "stories_branch_from_segment_id_fkey"
-            columns: ["branch_from_segment_id"]
-            isOneToOne: false
-            referencedRelation: "story_segments"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "stories_parent_story_id_fkey"
-            columns: ["parent_story_id"]
-            isOneToOne: false
-            referencedRelation: "stories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      story_dictionary: {
-        Row: {
-          added_by: string | null
-          created_at: string
-          id: string
-          kind: string
-          story_id: string
-          term: string
-        }
-        Insert: {
-          added_by?: string | null
-          created_at?: string
-          id?: string
-          kind?: string
-          story_id: string
-          term: string
-        }
-        Update: {
-          added_by?: string | null
-          created_at?: string
-          id?: string
-          kind?: string
-          story_id?: string
-          term?: string
         }
         Relationships: []
       }
-      story_recaps: {
-        Row: {
-          content: string
-          created_at: string
-          id: string
-          story_id: string
-          up_to_position: number
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          id?: string
-          story_id: string
-          up_to_position: number
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          id?: string
-          story_id?: string
-          up_to_position?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "story_recaps_story_id_fkey"
-            columns: ["story_id"]
-            isOneToOne: false
-            referencedRelation: "stories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       story_segments: {
         Row: {
-          author_id: string
+          author_id: string | null
           content: string
           created_at: string
           id: string
+          is_ai: boolean
           position: number
           story_id: string
         }
         Insert: {
-          author_id: string
+          author_id?: string | null
           content: string
           created_at?: string
           id?: string
+          is_ai?: boolean
           position: number
           story_id: string
         }
         Update: {
-          author_id?: string
+          author_id?: string | null
           content?: string
           created_at?: string
           id?: string
+          is_ai?: boolean
           position?: number
           story_id?: string
         }
