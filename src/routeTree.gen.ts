@@ -13,7 +13,7 @@ import { Route as NewRouteImport } from './routes/new'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StoryStoryIdRouteImport } from './routes/story.$storyId'
-import { Route as StoryStoryIdWriteRouteImport } from './routes/story.$storyId_.write'
+import { Route as ApiPublicHooksAiContinueRouteImport } from './routes/api/public/hooks/ai-continue'
 
 const NewRoute = NewRouteImport.update({
   id: '/new',
@@ -35,25 +35,26 @@ const StoryStoryIdRoute = StoryStoryIdRouteImport.update({
   path: '/story/$storyId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StoryStoryIdWriteRoute = StoryStoryIdWriteRouteImport.update({
-  id: '/story/$storyId_/write',
-  path: '/story/$storyId/write',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const ApiPublicHooksAiContinueRoute =
+  ApiPublicHooksAiContinueRouteImport.update({
+    id: '/api/public/hooks/ai-continue',
+    path: '/api/public/hooks/ai-continue',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/new': typeof NewRoute
   '/story/$storyId': typeof StoryStoryIdRoute
-  '/story/$storyId/write': typeof StoryStoryIdWriteRoute
+  '/api/public/hooks/ai-continue': typeof ApiPublicHooksAiContinueRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/new': typeof NewRoute
   '/story/$storyId': typeof StoryStoryIdRoute
-  '/story/$storyId/write': typeof StoryStoryIdWriteRoute
+  '/api/public/hooks/ai-continue': typeof ApiPublicHooksAiContinueRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -61,7 +62,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/new': typeof NewRoute
   '/story/$storyId': typeof StoryStoryIdRoute
-  '/story/$storyId_/write': typeof StoryStoryIdWriteRoute
+  '/api/public/hooks/ai-continue': typeof ApiPublicHooksAiContinueRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -70,16 +71,21 @@ export interface FileRouteTypes {
     | '/auth'
     | '/new'
     | '/story/$storyId'
-    | '/story/$storyId/write'
+    | '/api/public/hooks/ai-continue'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/new' | '/story/$storyId' | '/story/$storyId/write'
+  to:
+    | '/'
+    | '/auth'
+    | '/new'
+    | '/story/$storyId'
+    | '/api/public/hooks/ai-continue'
   id:
     | '__root__'
     | '/'
     | '/auth'
     | '/new'
     | '/story/$storyId'
-    | '/story/$storyId_/write'
+    | '/api/public/hooks/ai-continue'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -87,7 +93,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   NewRoute: typeof NewRoute
   StoryStoryIdRoute: typeof StoryStoryIdRoute
-  StoryStoryIdWriteRoute: typeof StoryStoryIdWriteRoute
+  ApiPublicHooksAiContinueRoute: typeof ApiPublicHooksAiContinueRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -120,11 +126,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StoryStoryIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/story/$storyId_/write': {
-      id: '/story/$storyId_/write'
-      path: '/story/$storyId/write'
-      fullPath: '/story/$storyId/write'
-      preLoaderRoute: typeof StoryStoryIdWriteRouteImport
+    '/api/public/hooks/ai-continue': {
+      id: '/api/public/hooks/ai-continue'
+      path: '/api/public/hooks/ai-continue'
+      fullPath: '/api/public/hooks/ai-continue'
+      preLoaderRoute: typeof ApiPublicHooksAiContinueRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -135,18 +141,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   NewRoute: NewRoute,
   StoryStoryIdRoute: StoryStoryIdRoute,
-  StoryStoryIdWriteRoute: StoryStoryIdWriteRoute,
+  ApiPublicHooksAiContinueRoute: ApiPublicHooksAiContinueRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
