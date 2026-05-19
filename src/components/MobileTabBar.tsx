@@ -1,5 +1,6 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { Compass, Flame, Plus, User } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 
 interface NavItem {
   to: string;
@@ -8,13 +9,6 @@ interface NavItem {
   match: (p: string, s: string) => boolean;
   accent?: boolean;
 }
-
-const items: NavItem[] = [
-  { to: "/", label: "探索", icon: Compass, match: (p) => p === "/" },
-  { to: "/?sort=hot", label: "熱門", icon: Flame, match: (p, s) => p === "/" && s.includes("hot") },
-  { to: "/new", label: "開故事", icon: Plus, match: (p) => p.startsWith("/new"), accent: true },
-  { to: "/auth", label: "我", icon: User, match: (p) => p.startsWith("/auth") },
-];
 
 export function MobileTabBar() {
   const loc = useLocation();
