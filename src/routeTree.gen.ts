@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as NewRouteImport } from './routes/new'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StoryStoryIdRouteImport } from './routes/story.$storyId'
 import { Route as ApiPublicHooksAiContinueRouteImport } from './routes/api/public/hooks/ai-continue'
 
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NewRoute = NewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/new': typeof NewRoute
+  '/profile': typeof ProfileRoute
   '/story/$storyId': typeof StoryStoryIdRoute
   '/api/public/hooks/ai-continue': typeof ApiPublicHooksAiContinueRoute
 }
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/new': typeof NewRoute
+  '/profile': typeof ProfileRoute
   '/story/$storyId': typeof StoryStoryIdRoute
   '/api/public/hooks/ai-continue': typeof ApiPublicHooksAiContinueRoute
 }
@@ -61,6 +69,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/new': typeof NewRoute
+  '/profile': typeof ProfileRoute
   '/story/$storyId': typeof StoryStoryIdRoute
   '/api/public/hooks/ai-continue': typeof ApiPublicHooksAiContinueRoute
 }
@@ -70,6 +79,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/new'
+    | '/profile'
     | '/story/$storyId'
     | '/api/public/hooks/ai-continue'
   fileRoutesByTo: FileRoutesByTo
@@ -77,6 +87,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/new'
+    | '/profile'
     | '/story/$storyId'
     | '/api/public/hooks/ai-continue'
   id:
@@ -84,6 +95,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/new'
+    | '/profile'
     | '/story/$storyId'
     | '/api/public/hooks/ai-continue'
   fileRoutesById: FileRoutesById
@@ -92,12 +104,20 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   NewRoute: typeof NewRoute
+  ProfileRoute: typeof ProfileRoute
   StoryStoryIdRoute: typeof StoryStoryIdRoute
   ApiPublicHooksAiContinueRoute: typeof ApiPublicHooksAiContinueRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/new': {
       id: '/new'
       path: '/new'
@@ -140,6 +160,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   NewRoute: NewRoute,
+  ProfileRoute: ProfileRoute,
   StoryStoryIdRoute: StoryStoryIdRoute,
   ApiPublicHooksAiContinueRoute: ApiPublicHooksAiContinueRoute,
 }
